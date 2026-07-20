@@ -1,140 +1,238 @@
 # Corrective Agentic RAG Assistant
 
-Research-backed Adaptive CRAG assistant that detects retrieval failure, adapts retrieval depth, refines noisy context, falls back to web search, and reports RAG quality metrics.
+[![Tests](https://github.com/PRINCE2-AI/corrective-agentic-rag-assistant/actions/workflows/tests.yml/badge.svg)](https://github.com/PRINCE2-AI/corrective-agentic-rag-assistant/actions/workflows/tests.yml)
+[![Python 3.11+](https://img.shields.io/badge/Python-3.11%2B-3776AB?logo=python&logoColor=white)](https://www.python.org/)
+[![FastAPI](https://img.shields.io/badge/FastAPI-API-009688?logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com/)
+[![Streamlit](https://img.shields.io/badge/Streamlit-Dashboard-FF4B4B?logo=streamlit&logoColor=white)](https://streamlit.io/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-2ea44f.svg)](LICENSE)
+[![GitHub stars](https://img.shields.io/github/stars/PRINCE2-AI/corrective-agentic-rag-assistant?style=social)](https://github.com/PRINCE2-AI/corrective-agentic-rag-assistant/stargazers)
 
-This project is designed as a production-style LLM Engineer portfolio project, not just a notebook demo.
+**A research-backed Adaptive CRAG system for detecting retrieval failure, correcting noisy context, falling back to web search, and measuring RAG answer quality.**
 
-## Problem
+Corrective Agentic RAG Assistant turns the CRAG paper idea into a practical LLM engineering project. It routes each query by complexity, retrieves from local and hierarchical context, grades retrieval quality, chooses a corrective action, generates citation-grounded answers, and reports evaluation metrics.
 
-Most RAG apps fail silently: they retrieve weak or irrelevant chunks, pass them into an LLM, and produce confident hallucinations.
+> [!NOTE]
+> This is an independent implementation inspired by CRAG, Adaptive-RAG, RAPTOR, ARES, and RAGAS. It is not an official implementation and is not affiliated with the paper authors.
 
-This project adds a corrective layer before generation. It asks:
+## Why this project
 
-1. Is the retrieved context actually relevant?
-2. Is the query simple, multi-hop, current, or long-context?
-3. Should the system trust local documents, search the web, or combine both?
-4. Can the final answer be evaluated for faithfulness and relevance?
+Most RAG apps fail silently: they retrieve weak or irrelevant chunks, pass them into an LLM, and produce confident hallucinations. This project treats RAG as a measurable reliability system instead of a simple chatbot.
 
-## Research Used
+- **Retrieval quality gate:** retrieved chunks are scored before generation.
+- **Corrective routing:** each query triggers `correct`, `incorrect`, or `ambiguous` behavior.
+- **Adaptive retrieval depth:** simple, multi-hop, current, and long-context queries use different retrieval strategies.
+- **Hierarchical context:** document and section summaries improve broad long-document questions.
+- **Web fallback:** weak local retrieval can trigger Tavily search when configured.
+- **Auditable output:** confidence, citations, selected chunks, filtered context, latency, and eval metrics are returned.
+- **Offline coverage:** tests and demo flows run without paid APIs.
 
-- **CRAG**: retrieval evaluator, Correct / Incorrect / Ambiguous routing, knowledge refinement, and web correction.
-- **Adaptive-RAG**: query complexity routing for simple, multi-hop, web-needed, and long-context queries.
-- **RAPTOR**: hierarchical summaries for long-document retrieval.
-- **ARES/RAGAS**: context relevance, answer faithfulness, answer relevance, and citation coverage evaluation.
+## Research mapping
+
+| Research idea | How this project uses it |
+| --- | --- |
+| CRAG | Retrieval evaluator, Correct / Incorrect / Ambiguous routing, knowledge refinement, web correction |
+| Adaptive-RAG | Query complexity router for simple, multi-hop, web-needed, and long-context questions |
+| RAPTOR | Document-level and section-level summary chunks for long-context retrieval |
+| ARES / RAGAS | Context relevance, answer faithfulness, answer relevance, citation coverage, and latency metrics |
 
 ## Architecture
 
-```text
-Query
-  -> Query Complexity Router
-  -> Hybrid / Hierarchical Retrieval
-  -> Retrieval Evaluator
-  -> CRAG Action: Correct | Incorrect | Ambiguous
-  -> Knowledge Refinement and/or Web Search
-  -> Citation-Grounded Generation
-  -> RAG Evaluation Dashboard
-```
-
 ```mermaid
-flowchart TD
-    A[User Query] --> B[Adaptive Query Router]
-    B --> C[Hybrid / Hierarchical Retrieval]
-    C --> D[Retrieval Evaluator]
-    D --> E{CRAG Action}
-    E -->|Correct| F[Knowledge Refinement]
-    E -->|Incorrect| G[Web Correction]
-    E -->|Ambiguous| H[Local + Web Merge]
-    F --> I[Citation-Grounded Generation]
-    G --> I
-    H --> I
-    I --> J[RAG Evaluation Metrics]
+flowchart LR
+    Q["User query"] --> R["Adaptive query router"]
+    R --> H["Hybrid / hierarchical retrieval"]
+    H --> E["Retrieval evaluator"]
+    E --> A{"CRAG action"}
+    A -->|"correct"| K["Knowledge refinement"]
+    A -->|"incorrect"| W["Web correction"]
+    A -->|"ambiguous"| M["Local + web merge"]
+    K --> G["Citation-grounded generation"]
+    W --> G
+    M --> G
+    G --> V["RAG evaluation metrics"]
 ```
 
-## Features
+The system returns one response only after these checks:
 
-- Upload PDF, TXT, or Markdown documents.
-- Compare Baseline RAG, CRAG, and Adaptive CRAG.
-- Route queries by complexity.
-- Use RAPTOR-style document and section summaries for long context.
-- Detect weak retrieval and trigger corrective web search.
-- Show retrieval confidence, filtered chunks, web sources, citations, latency, and evaluation scores.
-- Works without paid APIs using local fallbacks.
-- Includes GitHub Actions tests and a typed Pydantic API contract.
+```text
+retrieval_score -> crag_action -> refined_context -> grounded_answer -> eval_metrics
+```
 
-## Quick Start
+## Quick start
+
+### 1. Clone and install
 
 ```bash
+git clone https://github.com/PRINCE2-AI/corrective-agentic-rag-assistant.git
+cd corrective-agentic-rag-assistant
 python -m venv .venv
-.venv\Scripts\activate
-pip install -r requirements.txt
-copy .env.example .env
 ```
 
-Run the API:
+Windows PowerShell:
+
+```powershell
+.\.venv\Scripts\Activate.ps1
+pip install -r requirements.txt
+Copy-Item .env.example .env
+```
+
+macOS/Linux:
+
+```bash
+source .venv/bin/activate
+pip install -r requirements.txt
+cp .env.example .env
+```
+
+### 2. Optional model and search configuration
+
+Edit `.env` if you want live generation or web correction:
+
+```env
+OLLAMA_BASE_URL=http://localhost:11434
+OLLAMA_MODEL=mistral
+TAVILY_API_KEY=
+DEFAULT_TOP_K=5
+CRAG_UPPER_THRESHOLD=0.5
+CRAG_LOWER_THRESHOLD=-0.8
+```
+
+The app still runs without Ollama or Tavily. It falls back gracefully for local demos and tests.
+
+### 3. Run the API
 
 ```bash
 uvicorn app.api:api --reload
 ```
 
-Run the UI:
+Key endpoints:
+
+| Endpoint | Purpose |
+| --- | --- |
+| `GET /health` | Check app and integration status |
+| `POST /ingest` | Upload PDF, TXT, or Markdown files |
+| `POST /query` | Run Baseline RAG, CRAG, or Adaptive CRAG |
+| `POST /evaluate` | Run a batch of questions through the evaluation flow |
+| `GET /metrics` | Inspect action counts, fallback rate, latency, and faithfulness |
+
+### 4. Run the dashboard
 
 ```bash
 streamlit run app/ui.py
 ```
 
-Run tests:
+Try the bundled sample document:
 
-```bash
-pytest
+```text
+data/sample_docs/sample_ai_notes.md
 ```
 
-## API
+Suggested demo questions:
 
-- `GET /health`: service and integration status.
-- `POST /ingest`: upload files and index chunks.
-- `POST /query`: run Baseline RAG, CRAG, or Adaptive CRAG.
-- `POST /evaluate`: run a batch of questions through the evaluation flow.
-- `GET /metrics`: inspect action counts, fallback rate, latency, and faithfulness.
+- How does CRAG handle retrieval failure?
+- Compare CRAG and Adaptive-RAG for enterprise search.
+- Summarize the whole document.
+- What is the latest RAG paper in 2026?
 
-## Optional Integrations
+## Hard run
 
-- Set `OLLAMA_MODEL=mistral` and run Ollama locally for generation.
-- Set `TAVILY_API_KEY` to enable live web correction.
-- Replace the lightweight lexical evaluator with a cross-encoder reranker for stronger scoring.
-- Replace the in-memory retriever with ChromaDB/Qdrant for persistent vector search.
+Use retrieval failure simulation to show the corrective layer in action:
 
-## Demo Ideas
+```python
+from pathlib import Path
 
-1. Ask a question fully covered by uploaded docs. The system should choose `correct`.
-2. Ask about current/latest information. Adaptive routing should mark it `web_needed`.
-3. Enable retrieval failure simulation. The system should show how CRAG detects noisy context.
-4. Ask a broad document-level question. Hierarchical retrieval should include summary chunks.
+from app.graph import run_query
+from app.ingestion import ingest_paths
+from app.schemas import QueryRequest
 
-See `docs/demo_script.md` for a clean interview/demo walkthrough.
+ingest_paths([Path("data/sample_docs/sample_ai_notes.md")])
+response = run_query(
+    QueryRequest(
+        question="How does CRAG handle retrieval failure?",
+        simulate_bad_retrieval=True,
+    )
+)
+print(response.action, response.confidence, response.metrics)
+```
 
-## Evaluation Metrics
+## Evaluation metrics
 
-- **Context relevance**: how well selected evidence matches the query.
-- **Answer faithfulness**: how much of the answer is supported by selected evidence.
-- **Answer relevance**: how well the answer addresses the query.
-- **Citation coverage**: whether the answer has usable local or web sources.
-- **Latency**: practical production tradeoff for correction and web fallback.
+| Metric | Purpose |
+| --- | --- |
+| `context_relevance` | Measures how well selected evidence matches the query |
+| `answer_faithfulness` | Estimates how much of the answer is supported by evidence |
+| `answer_relevance` | Checks whether the answer addresses the question |
+| `citation_coverage` | Confirms whether usable local or web sources exist |
+| `latency_ms` | Tracks the cost of correction and fallback |
 
-## What Makes This Strong For AI Engineering
+## Tests
 
-- Shows research-to-product thinking across CRAG, Adaptive-RAG, RAPTOR, and RAG evaluation.
-- Uses explicit routing and typed responses instead of hidden prompt-only logic.
-- Handles missing Ollama/Tavily gracefully, so the app is demoable without paid services.
-- Separates retrieval, evaluation, refinement, generation, API, and UI modules.
-- Includes tests, CI, sample data, docs, and resume-ready bullets.
+The test suite is offline and does not require Ollama, Tavily, or paid APIs.
 
-## Resume Bullets
+```bash
+pytest -q
+```
+
+It covers:
+
+- query complexity routing
+- CRAG action selection
+- knowledge-strip refinement
+- bounded RAG evaluation metrics
+- syntax/import smoke checks through CI
+
+## Project layout
+
+```text
+corrective-agentic-rag-assistant/
+|-- .github/                  # GitHub Actions CI
+|-- app/
+|   |-- api.py                 # FastAPI endpoints
+|   |-- graph.py               # End-to-end CRAG workflow
+|   |-- query_router.py        # Adaptive-RAG-style routing
+|   |-- retrieval.py           # Hybrid / hierarchical retrieval interface
+|   |-- evaluator.py           # Retrieval scoring and action routing
+|   |-- refinement.py          # Knowledge-strip filtering
+|   |-- hierarchical_index.py  # RAPTOR-style summaries
+|   |-- generation.py          # Ollama-compatible answer generation
+|   |-- rag_eval.py            # RAG quality metrics
+|   `-- ui.py                  # Streamlit dashboard
+|-- data/sample_docs/          # Redistributable sample input
+|-- docs/                      # Architecture, paper notes, demo script
+|-- tests/                     # Offline regression tests
+|-- .env.example
+|-- pyproject.toml
+|-- requirements.txt
+`-- README.md
+```
+
+## Responsible use
+
+RAG systems can produce unsupported answers when retrieval is weak, documents are outdated, or web sources are low quality. Review citations before using outputs in production. Do not upload private, licensed, or sensitive documents without permission.
+
+The included evaluator is a lightweight local approximation for portfolio/demo use. For production, replace it with a stronger reranker, LLM judge, human evaluation, and domain-specific benchmarks.
+
+## Roadmap
+
+- [ ] Add ChromaDB/Qdrant persistent vector store implementation.
+- [ ] Add cross-encoder reranker for stronger retrieval grading.
+- [ ] Add LangGraph-native graph nodes and state persistence.
+- [ ] Add Langfuse/LangSmith trace export.
+- [ ] Add benchmark CSV runner for baseline RAG vs Adaptive CRAG.
+- [ ] Publish demo video and screenshots.
+
+## Resume bullets
 
 - Built a research-backed Adaptive CRAG system using FastAPI, Streamlit, ChromaDB-ready retrieval, Ollama, and Tavily to detect retrieval failure and dynamically route between local retrieval, hierarchical retrieval, and web correction.
 - Implemented query complexity routing, Correct/Incorrect/Ambiguous retrieval actions, knowledge-strip refinement, citation-grounded generation, and RAG evaluation metrics for faithfulness and context relevance.
 - Added an observability dashboard comparing baseline RAG vs Adaptive CRAG with retrieval confidence, fallback rate, filtered context, citations, latency, and answer-quality scores.
 
-## Limitations And Next Steps
+## Contributing
 
-- v1 uses a lightweight local relevance evaluator for portability.
-- A stronger v2 can add a cross-encoder reranker, persistent ChromaDB/Qdrant storage, LangGraph-native graph execution, and an LLM-as-judge evaluator.
+Contributions are welcome. Read [CONTRIBUTING.md](CONTRIBUTING.md), keep tests offline by default, and never commit API keys, private documents, or generated vector indexes.
+
+## License
+
+The source code is available under the [MIT License](LICENSE). Papers, datasets, and third-party services retain their own licenses and terms.
+
+If this project helps you understand reliable RAG engineering, consider starring the repository.
