@@ -165,6 +165,18 @@ print(response.action, response.confidence, response.metrics)
 | `citation_coverage` | Confirms whether usable local or web sources exist |
 | `latency_ms` | Tracks the cost of correction and fallback |
 
+## Evaluation and observability assets
+
+| Asset | Purpose |
+| --- | --- |
+| [`data/eval_questions.json`](data/eval_questions.json) | 30-question eval set covering simple, multi-hop, long-context, web-needed, ambiguous, and out-of-domain queries |
+| [`docs/evaluation.md`](docs/evaluation.md) | Scoring guide for router accuracy, route accuracy, evidence hit rate, faithfulness, citation coverage, and refusal safety |
+| [`docs/observability.md`](docs/observability.md) | Trace schema, dashboard signals, failure taxonomy, and latency/cost reporting template |
+| [`docs/case_study.md`](docs/case_study.md) | Recruiter-facing explanation of the problem, system design, tradeoffs, and limitations |
+| [`docs/deployment.md`](docs/deployment.md) | Local, Docker, and Docker Compose run guide |
+
+The included eval set is a benchmark harness seed, not a claim of production accuracy. Publish only observed scores from real runs.
+
 ## Tests
 
 The test suite is offline and does not require Ollama, Tavily, or paid APIs.
@@ -198,7 +210,7 @@ corrective-agentic-rag-assistant/
 |   |-- rag_eval.py            # RAG quality metrics
 |   `-- ui.py                  # Streamlit dashboard
 |-- data/sample_docs/          # Redistributable sample input
-|-- docs/                      # Architecture, paper notes, demo script
+|-- docs/                      # Architecture, paper notes, evals, observability, deployment
 |-- tests/                     # Offline regression tests
 |-- .env.example
 |-- pyproject.toml
