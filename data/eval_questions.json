@@ -1,0 +1,242 @@
+[
+  {
+    "id": "crag_simple_001",
+    "question": "What problem does CRAG solve in retrieval augmented generation?",
+    "query_type": "simple",
+    "expected_route": "correct_or_ambiguous",
+    "expected_evidence": ["retrieval failure", "corrective retrieval", "context relevance"],
+    "quality_checks": ["answer_mentions_retrieval_quality", "answer_uses_citations"]
+  },
+  {
+    "id": "crag_simple_002",
+    "question": "Define context relevance in a RAG evaluation pipeline.",
+    "query_type": "simple",
+    "expected_route": "correct",
+    "expected_evidence": ["context relevance", "query", "retrieved chunks"],
+    "quality_checks": ["answer_is_grounded", "answer_is_concise"]
+  },
+  {
+    "id": "crag_simple_003",
+    "question": "What does citation coverage measure?",
+    "query_type": "simple",
+    "expected_route": "correct",
+    "expected_evidence": ["citations", "claims", "evidence"],
+    "quality_checks": ["answer_mentions_claim_support", "answer_uses_citations"]
+  },
+  {
+    "id": "crag_multi_004",
+    "question": "Compare baseline RAG and Adaptive CRAG for a partially covered enterprise search query.",
+    "query_type": "multi_hop",
+    "expected_route": "ambiguous",
+    "expected_evidence": ["baseline", "adaptive", "ambiguous", "refinement"],
+    "quality_checks": ["answer_compares_modes", "answer_mentions_failure_handling"]
+  },
+  {
+    "id": "crag_multi_005",
+    "question": "How do Adaptive-RAG routing and CRAG correction work together?",
+    "query_type": "multi_hop",
+    "expected_route": "ambiguous",
+    "expected_evidence": ["query router", "retrieval evaluator", "corrective action"],
+    "quality_checks": ["answer_explains_pipeline", "answer_uses_citations"]
+  },
+  {
+    "id": "crag_multi_006",
+    "question": "Why can a retrieved chunk be semantically related but still not answerable?",
+    "query_type": "multi_hop",
+    "expected_route": "ambiguous",
+    "expected_evidence": ["related", "answerability", "decisive evidence"],
+    "quality_checks": ["answer_mentions_evidence_span", "answer_avoids_hallucination"]
+  },
+  {
+    "id": "crag_long_007",
+    "question": "Summarize the whole document and identify the main RAG reliability mechanisms.",
+    "query_type": "long_context",
+    "expected_route": "hierarchical",
+    "expected_evidence": ["document summary", "section summary", "raw chunks"],
+    "quality_checks": ["answer_uses_hierarchical_context", "answer_has_citations"]
+  },
+  {
+    "id": "crag_long_008",
+    "question": "Which parts of the document explain evaluation metrics versus retrieval routing?",
+    "query_type": "long_context",
+    "expected_route": "hierarchical",
+    "expected_evidence": ["evaluation", "routing", "metrics"],
+    "quality_checks": ["answer_separates_topics", "answer_uses_citations"]
+  },
+  {
+    "id": "crag_long_009",
+    "question": "Extract the project architecture and explain each stage from query to dashboard.",
+    "query_type": "long_context",
+    "expected_route": "hierarchical",
+    "expected_evidence": ["complexity router", "retrieval", "evaluator", "generation", "dashboard"],
+    "quality_checks": ["answer_is_structured", "answer_has_pipeline_order"]
+  },
+  {
+    "id": "crag_web_010",
+    "question": "What is the latest RAG evaluation method released this year?",
+    "query_type": "web_needed",
+    "expected_route": "incorrect_or_web_fallback",
+    "expected_evidence": ["latest", "current", "web fallback"],
+    "quality_checks": ["answer_declares_uncertainty_without_web", "answer_uses_web_sources_when_enabled"]
+  },
+  {
+    "id": "crag_web_011",
+    "question": "Today, which vector database is most popular for production RAG?",
+    "query_type": "web_needed",
+    "expected_route": "incorrect_or_web_fallback",
+    "expected_evidence": ["today", "current", "web fallback"],
+    "quality_checks": ["answer_avoids_stale_claims", "answer_mentions_source_date"]
+  },
+  {
+    "id": "crag_negative_012",
+    "question": "What is the capital of a fictional country called Raglandia?",
+    "query_type": "out_of_domain",
+    "expected_route": "incorrect",
+    "expected_evidence": [],
+    "quality_checks": ["answer_refuses_or_states_unknown", "answer_does_not_invent"]
+  },
+  {
+    "id": "crag_negative_013",
+    "question": "According to the uploaded AI notes, what is the author's private phone number?",
+    "query_type": "out_of_domain",
+    "expected_route": "incorrect",
+    "expected_evidence": [],
+    "quality_checks": ["answer_refuses_private_data", "answer_does_not_invent"]
+  },
+  {
+    "id": "crag_ambiguous_014",
+    "question": "Explain the project benefits for both search quality and developer productivity.",
+    "query_type": "multi_hop",
+    "expected_route": "ambiguous",
+    "expected_evidence": ["search quality", "developer productivity", "observability"],
+    "quality_checks": ["answer_mentions_tradeoffs", "answer_uses_refined_context"]
+  },
+  {
+    "id": "crag_ambiguous_015",
+    "question": "Which mode should be used when local documents partly answer a question but miss a recent detail?",
+    "query_type": "multi_hop",
+    "expected_route": "ambiguous_or_web_fallback",
+    "expected_evidence": ["ambiguous", "partial coverage", "web fallback"],
+    "quality_checks": ["answer_mentions_partial_evidence", "answer_marks_uncertainty"]
+  },
+  {
+    "id": "crag_eval_016",
+    "question": "How should answer faithfulness be measured in this project?",
+    "query_type": "simple",
+    "expected_route": "correct",
+    "expected_evidence": ["faithfulness", "supported claims", "retrieved context"],
+    "quality_checks": ["answer_explains_supported_claims", "answer_mentions_citations"]
+  },
+  {
+    "id": "crag_eval_017",
+    "question": "What failure types should the dashboard show for retrieval problems?",
+    "query_type": "simple",
+    "expected_route": "correct",
+    "expected_evidence": ["no relevant chunks", "stale context", "noisy context", "low confidence"],
+    "quality_checks": ["answer_lists_failure_types", "answer_is_actionable"]
+  },
+  {
+    "id": "crag_eval_018",
+    "question": "How can fallback rate be interpreted during evaluation?",
+    "query_type": "simple",
+    "expected_route": "correct",
+    "expected_evidence": ["fallback rate", "retrieval failures", "web correction"],
+    "quality_checks": ["answer_mentions_tradeoff", "answer_avoids_overclaiming"]
+  },
+  {
+    "id": "crag_router_019",
+    "question": "Classify this query: Compare CRAG, RAPTOR, and Adaptive-RAG for a long annual report.",
+    "query_type": "long_context",
+    "expected_route": "hierarchical",
+    "expected_evidence": ["compare", "long annual report", "hierarchical"],
+    "quality_checks": ["router_detects_long_context", "answer_mentions_expanded_retrieval"]
+  },
+  {
+    "id": "crag_router_020",
+    "question": "Classify this query: What is CRAG?",
+    "query_type": "simple",
+    "expected_route": "correct",
+    "expected_evidence": ["short factual query"],
+    "quality_checks": ["router_detects_simple", "answer_is_brief"]
+  },
+  {
+    "id": "crag_router_021",
+    "question": "Classify this query: What changed in OpenAI embeddings today?",
+    "query_type": "web_needed",
+    "expected_route": "web_fallback",
+    "expected_evidence": ["changed", "today"],
+    "quality_checks": ["router_detects_current_info", "answer_requires_fresh_source"]
+  },
+  {
+    "id": "crag_refine_022",
+    "question": "Given noisy context, how should knowledge-strip refinement select useful evidence?",
+    "query_type": "multi_hop",
+    "expected_route": "ambiguous",
+    "expected_evidence": ["knowledge strips", "top relevant strips", "noise removal"],
+    "quality_checks": ["answer_explains_filtering", "answer_mentions_relevance"]
+  },
+  {
+    "id": "crag_refine_023",
+    "question": "Why should the system say uncertainty when evidence is weak?",
+    "query_type": "simple",
+    "expected_route": "ambiguous",
+    "expected_evidence": ["weak evidence", "uncertainty", "avoid hallucination"],
+    "quality_checks": ["answer_mentions_hallucination_risk", "answer_sets_boundary"]
+  },
+  {
+    "id": "crag_metric_024",
+    "question": "What is the difference between context relevance and answer relevance?",
+    "query_type": "multi_hop",
+    "expected_route": "correct",
+    "expected_evidence": ["context relevance", "answer relevance"],
+    "quality_checks": ["answer_distinguishes_metrics", "answer_has_examples"]
+  },
+  {
+    "id": "crag_metric_025",
+    "question": "How should citation coverage fail when an answer has unsupported claims?",
+    "query_type": "simple",
+    "expected_route": "correct",
+    "expected_evidence": ["unsupported claims", "citation coverage"],
+    "quality_checks": ["answer_mentions_penalty", "answer_uses_evidence_terms"]
+  },
+  {
+    "id": "crag_demo_026",
+    "question": "Show a demo question that should trigger the Correct route.",
+    "query_type": "simple",
+    "expected_route": "correct",
+    "expected_evidence": ["local document", "high relevance"],
+    "quality_checks": ["answer_gives_example", "answer_explains_why_correct"]
+  },
+  {
+    "id": "crag_demo_027",
+    "question": "Show a demo question that should trigger the Incorrect route.",
+    "query_type": "out_of_domain",
+    "expected_route": "incorrect",
+    "expected_evidence": ["missing evidence", "out of domain"],
+    "quality_checks": ["answer_gives_example", "answer_explains_why_incorrect"]
+  },
+  {
+    "id": "crag_demo_028",
+    "question": "Show a demo question that should trigger the Ambiguous route.",
+    "query_type": "multi_hop",
+    "expected_route": "ambiguous",
+    "expected_evidence": ["partial evidence", "mixed confidence"],
+    "quality_checks": ["answer_gives_example", "answer_explains_why_ambiguous"]
+  },
+  {
+    "id": "crag_safety_029",
+    "question": "Should the assistant answer if no retrieved chunk supports the claim?",
+    "query_type": "simple",
+    "expected_route": "incorrect",
+    "expected_evidence": ["no support", "do not answer", "uncertainty"],
+    "quality_checks": ["answer_refuses_unsupported_claim", "answer_explains_evidence_boundary"]
+  },
+  {
+    "id": "crag_safety_030",
+    "question": "How does the system prevent a confident but unsupported final answer?",
+    "query_type": "multi_hop",
+    "expected_route": "ambiguous_or_incorrect",
+    "expected_evidence": ["retrieval evaluator", "faithfulness", "citations", "uncertainty"],
+    "quality_checks": ["answer_mentions_quality_gate", "answer_mentions_citations"]
+  }
+]
